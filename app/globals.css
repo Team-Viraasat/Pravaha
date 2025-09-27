@@ -1,0 +1,225 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(0.98 0.01 120);
+  --foreground: oklch(0.15 0.02 240);
+
+  --card: oklch(0.96 0.01 120 / 0.9);
+  --card-foreground: oklch(0.15 0.02 240);
+
+  --popover: oklch(0.98 0.01 120);
+  --popover-foreground: oklch(0.15 0.02 240);
+
+  --primary: oklch(0.65 0.2 280);
+  --primary-foreground: oklch(0.98 0.01 120);
+
+  --secondary: oklch(0.92 0.02 200);
+  --secondary-foreground: oklch(0.25 0.02 240);
+
+  --muted: oklch(0.94 0.01 120);
+  --muted-foreground: oklch(0.45 0.02 240);
+
+  --accent: oklch(0.88 0.05 160);
+  --accent-foreground: oklch(0.25 0.02 240);
+
+  --destructive: oklch(0.6 0.2 15);
+  --destructive-foreground: oklch(0.98 0.01 120);
+
+  --border: oklch(0.88 0.02 200 / 0.4);
+  --input: oklch(0.96 0.01 120);
+  --ring: oklch(0.65 0.2 280 / 0.6);
+
+  --chart-1: oklch(0.65 0.2 280);
+  --chart-2: oklch(0.6 0.22 200);
+  --chart-3: oklch(0.55 0.25 120);
+  --chart-4: oklch(0.7 0.18 60);
+  --chart-5: oklch(0.62 0.2 340);
+
+  --radius: 0.75rem;
+
+  /* Glass look defaults */
+  --glass-bg-final: rgba(255, 255, 255, 0.08);
+  --glass-border-final: rgba(255, 255, 255, 0.15);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --glass-header-bg: rgba(255, 255, 255, 0.65);
+}
+
+.dark {
+  --background: oklch(0.08 0.02 240);
+  --foreground: oklch(0.95 0.01 120);
+
+  --card: oklch(0.12 0.02 240 / 0.9);
+  --card-foreground: oklch(0.95 0.01 120);
+
+  --popover: oklch(0.12 0.02 240);
+  --popover-foreground: oklch(0.95 0.01 120);
+
+  --primary: oklch(0.75 0.25 280);
+  --primary-foreground: oklch(0.08 0.02 240);
+
+  --secondary: oklch(0.18 0.02 240);
+  --secondary-foreground: oklch(0.85 0.01 120);
+
+  --muted: oklch(0.15 0.02 240);
+  --muted-foreground: oklch(0.65 0.01 120);
+
+  --accent: oklch(0.22 0.05 160);
+  --accent-foreground: oklch(0.9 0.01 120);
+
+  --destructive: oklch(0.65 0.25 15);
+  --destructive-foreground: oklch(0.95 0.01 120);
+
+  --border: oklch(0.2 0.02 240 / 0.4);
+  --input: oklch(0.15 0.02 240);
+  --ring: oklch(0.75 0.25 280 / 0.6);
+
+  --glass-bg-final: rgba(0, 0, 0, 0.4);
+  --glass-border-final: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --glass-header-bg: rgba(0, 0, 0, 0.6);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-border: var(--border);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans transition-colors duration-300;
+  }
+
+  /* -------------------------
+       BLOG CONTENT
+  --------------------------*/
+  .blog-content {
+    @apply leading-relaxed text-foreground;
+  }
+
+  .blog-content code {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--primary);
+    padding: 0.15em 0.4em;
+    border-radius: 0.3em;
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
+  .dark .blog-content code {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--primary-foreground);
+  }
+
+  .blog-content pre {
+    background: rgba(0, 0, 0, 0.06);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+  }
+
+  .dark .blog-content pre {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  /* -------------------------
+       GLASS UTILITIES
+  --------------------------*/
+  .glass-card {
+    background: var(--glass-bg-final);
+    border: 1px solid var(--glass-border-final);
+    backdrop-filter: blur(16px) saturate(160%) brightness(1.05);
+    -webkit-backdrop-filter: blur(16px) saturate(160%) brightness(1.05);
+    box-shadow: var(--glass-shadow);
+    transition: all 0.3s ease;
+  }
+
+  .glass-card:hover {
+    backdrop-filter: blur(22px) saturate(200%) brightness(1.1);
+    -webkit-backdrop-filter: blur(22px) saturate(200%) brightness(1.1);
+    transform: translateY(-2px);
+  }
+
+  .glass-nav {
+    background: var(--glass-header-bg);
+    border-bottom: 1px solid var(--glass-border-final);
+    backdrop-filter: blur(18px) saturate(160%) brightness(1.05);
+    -webkit-backdrop-filter: blur(18px) saturate(160%) brightness(1.05);
+    transition: all 0.3s ease;
+  }
+
+  /* -------------------------
+       HOVER PREVIEW (CENTER MODAL STYLE)
+  --------------------------*/
+/* -------------------------
+   HOVER PREVIEW (CENTER MODAL)
+--------------------------*/
+.hover-preview {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.95);
+  z-index: 9999;
+
+  width: min(90vw, 700px);
+  min-height: 400px;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+
+  background: var(--glass-header-bg);
+  border: 1px solid var(--glass-border-final);
+  backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+  -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+}
+
+.hover-preview.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+}
+
+/* -------------------------
+   BLOGSPACE LOADING TEXT
+--------------------------*/
+.blogspace-loader {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--foreground); /* instead of var(--primary) */
+  white-space: nowrap;
+  border-right: 2px solid var(--foreground);
+  width: 0;
+  overflow: hidden;
+  animation: typing 2.5s steps(20, end) forwards, blink 0.75s step-end infinite;
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 17ch; } /* "Loading BlogSpace..." */
+}
+
+@keyframes blink {
+  50% { border-color: transparent; }
+}
