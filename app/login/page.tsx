@@ -14,7 +14,7 @@ export default function LoginPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const fullText = "BlogSpace"
+    const fullText = "Pravaha"
     let i = 0
     const interval = setInterval(() => {
       setTypedText(fullText.slice(0, i + 1))
@@ -215,7 +215,7 @@ export default function LoginPage() {
         </div>
 
         <div className="text-center mt-8">
-          <p className="text-sm text-muted-foreground">Secure login powered by BlogSpace</p>
+          <p className="text-sm text-muted-foreground">Secure login powered by Pravaha</p>
         </div>
       </div>
     </div>

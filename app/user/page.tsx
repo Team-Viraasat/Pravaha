@@ -44,7 +44,7 @@ export default function MyPostsPage() {
     load()
   }, [router])
 
-  const handleNewPost = () => router.push("/add-post")
+  const handleNewPost = () => router.push("/admin/editor")
   const handleView = (slug: string) => router.push(`/post/${slug}`)
   const handleEdit = (id: string) => router.push(`/admin/editor/${id}`)
 

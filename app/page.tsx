@@ -5,20 +5,31 @@ import { useRouter } from "next/navigation"
 
 // --- Mock Components (to resolve build errors) ---
 
-const BlogHeader = ({ isAdmin, onUserClick, onToggleTheme, currentTheme, onLogout, onWritePost }) => {
+const BlogHeader = ({
+  isAdmin,
+  onUserClick,
+  onToggleTheme,
+  currentTheme,
+  onLogout,
+  onWritePost,
+  searchQuery,
+  onSearchChange,
+}) => {
   return (
     <header className="glass-nav sticky top-0 z-50">
       <div className="container mx-auto flex items-center justify-between p-4 text-foreground">
-        <h1 className="text-2xl font-bold">BlogSpace</h1>
+        <h1 className="text-2xl font-bold">Pravaha</h1>
         <div className="flex items-center gap-4">
           <input
             type="search"
             placeholder="Search posts..."
+            value={searchQuery}
+            onChange={(e) => onSearchChange?.(e.target.value)}
             className="hidden md:block glass-card rounded-full px-4 py-2 bg-transparent border border-border focus:ring-2 focus:ring-primary focus:outline-none transition-all"
           />
           <button
             onClick={onWritePost}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all duration-200 shadow-md"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -230,6 +241,7 @@ export default function HomePage() {
   const [theme, setTheme] = useState("light")
   const [posts, setPosts] = useState([])
   const [postsLoading, setPostsLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
     const checkAuth = () => {
@@ -256,7 +268,7 @@ export default function HomePage() {
 
   // Typing effect for BlogSpace
   useEffect(() => {
-    const fullText = "BlogSpace"
+    const fullText = "Pravaha"
     let i = 0
     const interval = setInterval(() => {
       setTypedText(fullText.slice(0, i + 1))
@@ -334,6 +346,17 @@ export default function HomePage() {
     return null
   }
 
+  const filteredPosts = posts.filter((p) => {
+    if (!searchQuery.trim()) return true
+    const q = searchQuery.toLowerCase()
+    return (
+      p.title.toLowerCase().includes(q) ||
+      (p.excerpt || "").toLowerCase().includes(q) ||
+      (p.category || "").toLowerCase().includes(q) ||
+      (p.author || "").toLowerCase().includes(q)
+    )
+  })
+
   return (
     <div className="min-h-screen page-transition">
       <BlogHeader
@@ -343,6 +366,8 @@ export default function HomePage() {
         currentTheme={theme}
         onLogout={handleLogout}
         onWritePost={handleWritePost}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
 
       <main className="container mx-auto px-4 py-8">
@@ -388,7 +413,7 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold text-foreground">Latest Posts</h2>
             <div className="glass-card px-3 py-1 rounded-full">
               <span className="text-sm text-muted-foreground">
-                {postsLoading ? "Loading..." : `${posts.length} articles`}
+                {postsLoading ? "Loading..." : `${filteredPosts.length} articles`}
               </span>
             </div>
           </div>
@@ -407,7 +432,7 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {posts.map((post, index) => (
+              {filteredPosts.map((post, index) => (
                 <div
                   key={post.id}
                   className="glass-card animate-in slide-in-from-bottom-4 duration-500 rounded-2xl 

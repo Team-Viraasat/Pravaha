@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
@@ -19,39 +18,30 @@ interface Comment {
   timestamp: string
 }
 
-const mockComments: Comment[] = [
-  {
-    id: "1",
-    name: "Alex Johnson",
-    email: "alex@example.com",
-    content:
-      "Great article! The section on Server Components was particularly helpful. I've been struggling with understanding when to use them vs client components.",
-    timestamp: "2 hours ago",
-  },
-  {
-    id: "2",
-    name: "Maria Garcia",
-    content:
-      "Thanks for the comprehensive guide. The performance optimization tips are exactly what I needed for my current project.",
-    timestamp: "5 hours ago",
-  },
-  {
-    id: "3",
-    name: "David Chen",
-    email: "david@example.com",
-    content:
-      "Would love to see a follow-up article about deployment strategies with Next.js. This was an excellent read!",
-    timestamp: "1 day ago",
-  },
-]
-
-export function CommentSection() {
-  const [comments, setComments] = useState<Comment[]>(mockComments)
+export function CommentSection({ slug }: { slug: string }) {
+  const [comments, setComments] = useState<Comment[]>([])
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [content, setContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
+
+  useEffect(() => {
+    let isMounted = true
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/posts/${slug}/comments`, { cache: "no-store" })
+        const data = await res.json()
+        if (res.ok && isMounted) setComments(data.comments || [])
+      } catch (e) {
+        // no-op
+      }
+    }
+    load()
+    return () => {
+      isMounted = false
+    }
+  }, [slug])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -66,38 +56,36 @@ export function CommentSection() {
     }
 
     setIsSubmitting(true)
-
-    // Simulate API call
-    setTimeout(() => {
-      const newComment: Comment = {
-        id: Date.now().toString(),
-        name: name.trim(),
-        email: email.trim() || undefined,
-        content: content.trim(),
-        timestamp: "Just now",
-      }
-
-      setComments([newComment, ...comments])
-      setName("")
-      setEmail("")
-      setContent("")
-      setIsSubmitting(false)
-
-      toast({
-        title: "Comment posted!",
-        description: "Thank you for your comment.",
+    try {
+      const res = await fetch(`/api/posts/${slug}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, content }),
       })
-    }, 1000)
+      const data = await res.json()
+      if (!res.ok) {
+        toast({ title: "Could not post", description: data.error || "Please try again.", variant: "destructive" })
+      } else {
+        setComments((prev) => [data.comment, ...prev])
+        setName("")
+        setEmail("")
+        setContent("")
+        toast({ title: "Comment posted!", description: "Thank you for your comment." })
+      }
+    } catch {
+      toast({ title: "Network error", description: "Please try again.", variant: "destructive" })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  const getInitials = (name: string) => {
-    return name
+  const getInitials = (name: string) =>
+    name
       .split(" ")
-      .map((word) => word[0])
+      .map((w) => w[0])
       .join("")
       .toUpperCase()
       .slice(0, 2)
-  }
 
   return (
     <section className="glass-card rounded-xl p-8 animate-in slide-in-from-bottom-4 duration-700">
@@ -156,7 +144,7 @@ export function CommentSection() {
         <Button
           type="submit"
           disabled={isSubmitting || !name.trim() || !content.trim()}
-          className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (
             <div className="flex items-center gap-2">
@@ -191,7 +179,7 @@ export function CommentSection() {
                   {comment.name}
                 </span>
                 <span className="text-muted-foreground">•</span>
-                <span className="text-muted-foreground">{comment.timestamp}</span>
+                <span className="text-muted-foreground">{new Date(comment.timestamp).toLocaleString()}</span>
               </div>
 
               <p className="text-muted-foreground leading-relaxed hover:text-foreground/90 transition-colors duration-300">

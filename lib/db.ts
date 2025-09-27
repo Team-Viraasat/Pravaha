@@ -27,6 +27,15 @@ interface Vote {
   type: "upvote" | "downvote"
 }
 
+interface Comment {
+  id: string
+  postId: string
+  name: string
+  email?: string
+  content: string
+  timestamp: string
+}
+
 const users: User[] = [{ id: 1, username: "admin", password: "password", role: "admin" }]
 
 const posts: Post[] = [
@@ -141,6 +150,7 @@ Both can work together in the same design for maximum flexibility.`,
 ]
 
 const votes: Vote[] = []
+const comments: Comment[] = []
 
 export const db = {
   getUsers: () => users,
@@ -222,5 +232,18 @@ export const db = {
   },
   getUserVote: (userId: number, postId: string) => {
     return votes.find((v) => v.userId === userId && v.postId === postId)
+  },
+  getCommentsByPostId: (postId: string) => comments.filter((c) => c.postId === postId),
+  addComment: (postId: string, name: string, email: string | undefined, content: string) => {
+    const newComment: Comment = {
+      id: (comments.length + 1).toString(),
+      postId,
+      name,
+      email,
+      content,
+      timestamp: new Date().toISOString(),
+    }
+    comments.unshift(newComment)
+    return newComment
   },
 }

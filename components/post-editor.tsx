@@ -96,7 +96,14 @@ Next.js continues to evolve and provide developers with powerful tools to build 
       })
       return
     }
-
+    if (!postData.content.trim()) {
+      toast({
+        title: "Content required",
+        description: "Please add content to your post.",
+        variant: "destructive",
+      })
+      return
+    }
     if (!postData.category) {
       toast({
         title: "Category required",
@@ -107,22 +114,50 @@ Next.js continues to evolve and provide developers with powerful tools to build 
     }
 
     setIsLoading(true)
+    try {
+      const userRaw = typeof window !== "undefined" ? localStorage.getItem("user") : null
+      const user = userRaw ? JSON.parse(userRaw) : null
+      const author = user?.username || "Anonymous"
+      const authorId = user?.id
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      const updatedPost = { ...postData, isPublished: publish }
-      setPostData(updatedPost)
+      const res = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: postData.title,
+          content: postData.content,
+          excerpt: postData.excerpt,
+          category: postData.category,
+          author,
+          authorId,
+        }),
+      })
+      const data = await res.json()
+
+      if (!res.ok) {
+        toast({
+          title: "Could not save",
+          description: data.error || "Please try again.",
+          variant: "destructive",
+        })
+        return
+      }
 
       toast({
         title: publish ? "Post published!" : "Post saved!",
-        description: publish ? "Your post is now live." : "Your changes have been saved as a draft.",
+        description: publish ? "Your post is now live." : "Your changes have been saved.",
       })
 
-      if (!postId) {
+      if (!postId && data.post?.slug) {
+        router.push(`/post/${data.post.slug}`)
+      } else {
         router.push("/admin")
       }
-    }, 1000)
+    } catch {
+      toast({ title: "Network error", description: "Please try again.", variant: "destructive" })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleAddTag = () => {

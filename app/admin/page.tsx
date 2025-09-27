@@ -1,68 +1,78 @@
 "use client"
-\
-"next/navigationw I'll create a dedicated admin moderation panel that only admin users can access:
 
-<CodeProject id="Pravaha" taskNameActive="Creating admin moderation panel" taskNameComplete="Created admin moderation panel">
-
-\`\`\`tsx file="app/admin/page.tsx"
-"use client"
-
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+
+type User = {
+  username: string
+  [key: string]: unknown
+}
+
+type Post = {
+  id: string
+  title: string
+  slug: string
+  excerpt?: string
+  author?: string
+  date?: string
+  upvotes?: number
+  downvotes?: number
+}
 
 export default function AdminModerationPanel() {
   const router = useRouter()
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<User | null>(null)
   const [authLoading, setAuthLoading] = useState(true)
-  const [posts, setPosts] = useState([])
-  const [users, setUsers] = useState([])
-  const [activeTab, setActiveTab] = useState("posts")
+  const [posts, setPosts] = useState<Post[]>([])
+  const [activeTab, setActiveTab] = useState<"posts" | "users" | "analytics">("posts")
 
+  // Auth guard: only "admin" can access this page (basic client-side check)
   useEffect(() => {
-    const checkAuth = () => {
-      const storedUser = localStorage.getItem("user")
-      if (storedUser) {
-        const userData = JSON.parse(storedUser)
-        if (userData.username !== "admin") {
-          router.push("/")
-          return
-        }
-        setUser(userData)
-        setAuthLoading(false)
-      } else {
+    try {
+      const stored = localStorage.getItem("user")
+      if (!stored) {
         router.push("/login")
+        return
       }
+      const data = JSON.parse(stored) as User
+      if (data?.username !== "admin") {
+        router.push("/")
+        return
+      }
+      setUser(data)
+    } catch {
+      router.push("/login")
+      return
+    } finally {
+      setAuthLoading(false)
     }
-
-    checkAuth()
   }, [router])
 
+  // Load posts for moderation
   useEffect(() => {
     if (!user) return
-
-    const fetchData = async () => {
+    const load = async () => {
       try {
-        const postsResponse = await fetch("/api/posts")
-        const postsData = await postsResponse.json()
-        setPosts(postsData.posts)
-      } catch (error) {
-        console.error("Failed to fetch data:", error)
+        const res = await fetch("/api/posts")
+        const json = await res.json()
+        // supports { posts: [...] } or direct array
+        const items: Post[] = Array.isArray(json) ? json : (json?.posts ?? [])
+        setPosts(items)
+      } catch (err) {
+        console.error("[v0] Failed to fetch posts:", err)
       }
     }
-
-    fetchData()
+    load()
   }, [user])
 
-  const handleDeletePost = async (postId) => {
-    if (!confirm("Are you sure you want to delete this post?")) return
-
+  const handleDeletePost = async (postId: string) => {
+    const ok = confirm("Are you sure you want to delete this post?")
+    if (!ok) return
     try {
-      // This would need to be implemented in the API
-      console.log("Delete post:", postId)
-      // Remove from local state for now
-      setPosts(posts.filter((p) => p.id !== postId))
-    } catch (error) {
-      console.error("Failed to delete post:", error)
+      // TODO: Implement delete in API when available
+      setPosts((prev) => prev.filter((p) => p.id !== postId))
+    } catch (err) {
+      console.error("[v0] Failed to delete post:", err)
     }
   }
 
@@ -73,14 +83,12 @@ export default function AdminModerationPanel() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="blogspace-loader">Loading...</div>
+        <div className="text-foreground">Loading...</div>
       </div>
     )
   }
 
-  if (!user) {
-    return null
-  }
+  if (!user) return null
 
   return (
     <div className="min-h-screen bg-background">
@@ -96,6 +104,7 @@ export default function AdminModerationPanel() {
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground transition-colors"
           >
             <svg
+              aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
               width="16"
               height="16"
@@ -109,7 +118,8 @@ export default function AdminModerationPanel() {
               <path d="m12 19-7-7 7-7" />
               <path d="M19 12H5" />
             </svg>
-            Back to Blog
+            <span className="sr-only">Back</span>
+            <span aria-hidden>Back to Blog</span>
           </button>
         </div>
 
@@ -149,19 +159,20 @@ export default function AdminModerationPanel() {
 
         {/* Posts Management */}
         {activeTab === "posts" && (
-          <div className="glass-card rounded-xl p-6">
+          <div className="rounded-xl p-6 border border-border">
             <h2 className="text-xl font-semibold text-foreground mb-4">Posts Management</h2>
             <div className="space-y-4">
               {posts.map((post) => (
                 <div key={post.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
                   <div className="flex-1">
                     <h3 className="font-semibold text-foreground">{post.title}</h3>
-                    <p className="text-sm text-muted-foreground mt-1">{post.excerpt}</p>
+                    {post.excerpt ? <p className="text-sm text-muted-foreground mt-1">{post.excerpt}</p> : null}
                     <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                      <span>By {post.author}</span>
-                      <span>{post.date}</span>
+                      {post.author ? <span>By {post.author}</span> : null}
+                      {post.date ? <span>{post.date}</span> : null}
                       <span className="flex items-center gap-1">
                         <svg
+                          aria-hidden="true"
                           xmlns="http://www.w3.org/2000/svg"
                           width="12"
                           height="12"
@@ -174,10 +185,11 @@ export default function AdminModerationPanel() {
                         >
                           <path d="m18 15-6-6-6 6" />
                         </svg>
-                        {post.upvotes}
+                        {post.upvotes ?? 0}
                       </span>
                       <span className="flex items-center gap-1">
                         <svg
+                          aria-hidden="true"
                           xmlns="http://www.w3.org/2000/svg"
                           width="12"
                           height="12"
@@ -190,7 +202,7 @@ export default function AdminModerationPanel() {
                         >
                           <path d="m6 9 6 6 6-6" />
                         </svg>
-                        {post.downvotes}
+                        {post.downvotes ?? 0}
                       </span>
                     </div>
                   </div>
@@ -210,13 +222,14 @@ export default function AdminModerationPanel() {
                   </div>
                 </div>
               ))}
+              {posts.length === 0 && <p className="text-sm text-muted-foreground">No posts found.</p>}
             </div>
           </div>
         )}
 
         {/* User Management */}
         {activeTab === "users" && (
-          <div className="glass-card rounded-xl p-6">
+          <div className="rounded-xl p-6 border border-border">
             <h2 className="text-xl font-semibold text-foreground mb-4">User Management</h2>
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 border border-border rounded-lg">
@@ -233,7 +246,7 @@ export default function AdminModerationPanel() {
 
         {/* Analytics */}
         {activeTab === "analytics" && (
-          <div className="glass-card rounded-xl p-6">
+          <div className="rounded-xl p-6 border border-border">
             <h2 className="text-xl font-semibold text-foreground mb-4">Analytics Overview</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="p-4 border border-border rounded-lg">
@@ -243,13 +256,13 @@ export default function AdminModerationPanel() {
               <div className="p-4 border border-border rounded-lg">
                 <h3 className="text-sm text-muted-foreground">Total Upvotes</h3>
                 <p className="text-2xl font-bold text-foreground mt-1">
-                  {posts.reduce((sum, post) => sum + (post.upvotes || 0), 0)}
+                  {posts.reduce((sum, p) => sum + (p.upvotes || 0), 0)}
                 </p>
               </div>
               <div className="p-4 border border-border rounded-lg">
                 <h3 className="text-sm text-muted-foreground">Total Downvotes</h3>
                 <p className="text-2xl font-bold text-foreground mt-1">
-                  {posts.reduce((sum, post) => sum + (post.downvotes || 0), 0)}
+                  {posts.reduce((sum, p) => sum + (p.downvotes || 0), 0)}
                 </p>
               </div>
             </div>

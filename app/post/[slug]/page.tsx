@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowLeft, Clock, User, Share2, Bookmark, Heart } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
+import { CommentSection } from "@/components/comment-section"
 
 const BlogHeader = ({ isAdmin, onAdminClick, onToggleTheme, currentTheme, onLogout }) => {
   return (
@@ -55,11 +56,10 @@ const BlogHeader = ({ isAdmin, onAdminClick, onToggleTheme, currentTheme, onLogo
               >
                 <circle cx="12" cy="12" r="4" />
                 <path d="M12 2v2" />
-                <path d="M12 20v2" />
+                <path d="M20 12h2" />
                 <path d="m4.93 4.93 1.41 1.41" />
                 <path d="m17.66 17.66 1.41 1.41" />
                 <path d="M2 12h2" />
-                <path d="M20 12h2" />
                 <path d="m4.93 17.66 1.41-1.41" />
                 <path d="m17.66 4.93 1.41-1.41" />
               </svg>
@@ -71,15 +71,6 @@ const BlogHeader = ({ isAdmin, onAdminClick, onToggleTheme, currentTheme, onLogo
         </div>
       </div>
     </header>
-  )
-}
-
-const CommentSection = () => {
-  return (
-    <div className="glass-card rounded-xl p-6">
-      <h3 className="text-xl font-semibold mb-4">Comments</h3>
-      <p className="text-muted-foreground">Comments feature coming soon...</p>
-    </div>
   )
 }
 
@@ -171,7 +162,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="blogspace-loader">Loading BlogSpace...</div>
+        <div className="blogspace-loader">Loading Pravaha...</div>
       </div>
     )
   }
@@ -359,7 +350,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
         </article>
 
         <div className="animate-in slide-in-from-bottom-6 duration-700 delay-1300">
-          <CommentSection />
+          <CommentSection slug={params.slug} />
         </div>
       </main>
     </div>
