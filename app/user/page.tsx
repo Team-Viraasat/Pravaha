@@ -1,105 +1,114 @@
 "use client"
 
-import { AdminSidebar } from "@/components/admin-sidebar"
-import { AdminPostsList } from "@/components/admin-posts-list"
-import { CategoryManager } from "@/components/category-manager"
-import { Button } from "@/components/ui/button"
-import { Plus, BarChart3, Users, FileText } from "lucide-react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { Button } from "@/components/ui/button"
 
-export default function AdminDashboard() {
+interface Post {
+  id: string
+  title: string
+  excerpt: string
+  slug: string
+  date: string
+  readTime: string
+  category: string
+  author: string
+}
+
+export default function MyPostsPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState("posts")
+  const [user, setUser] = useState<any>(null)
+  const [posts, setPosts] = useState<Post[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const handleNewPost = () => {
-    router.push("/admin/editor")
-  }
+  useEffect(() => {
+    const stored = localStorage.getItem("user")
+    if (!stored) {
+      router.replace("/login")
+      return
+    }
+    const currentUser = JSON.parse(stored)
+    setUser(currentUser)
 
-  const stats = [
-    {
-      title: "Total Posts",
-      value: "24",
-      icon: FileText,
-      change: "+3 this week",
-    },
-    {
-      title: "Total Views",
-      value: "12.5K",
-      icon: BarChart3,
-      change: "+18% this month",
-    },
-    {
-      title: "Comments",
-      value: "89",
-      icon: Users,
-      change: "+12 today",
-    },
-  ]
+    const load = async () => {
+      try {
+        const res = await fetch(`/api/posts?authorId=${currentUser.id}`)
+        const data = await res.json()
+        setPosts(data.posts || [])
+      } catch (e) {
+        console.log("[v0] Failed to fetch user posts:", e)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [router])
+
+  const handleNewPost = () => router.push("/add-post")
+  const handleView = (slug: string) => router.push(`/post/${slug}`)
+  const handleEdit = (id: string) => router.push(`/admin/editor/${id}`)
+
+  if (!user) return null
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="flex">
-        <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
-
-        <main className="flex-1 p-8">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                {activeTab === "posts" && "Dashboard"}
-                {activeTab === "categories" && "Category Management"}
-                {activeTab === "settings" && "Settings"}
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                {activeTab === "posts" && "Manage your blog content and settings"}
-                {activeTab === "categories" && "Organize your content with categories"}
-                {activeTab === "settings" && "Configure your blog settings"}
-              </p>
-            </div>
-            {activeTab === "posts" && (
-              <Button onClick={handleNewPost} className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                <Plus className="h-4 w-4 mr-2" />
-                New Post
-              </Button>
-            )}
+      <main className="container mx-auto px-4 py-10">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">My Posts</h1>
+            <p className="text-muted-foreground mt-1">Posts written by {user.username}</p>
           </div>
+          <Button onClick={handleNewPost} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+            New Post
+          </Button>
+        </div>
 
-          {activeTab === "posts" && (
-            <>
-              {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                {stats.map((stat) => (
-                  <div key={stat.title} className="glass-card rounded-xl p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-muted-foreground">{stat.title}</p>
-                        <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
-                        <p className="text-xs text-primary mt-1">{stat.change}</p>
-                      </div>
-                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <stat.icon className="h-6 w-6 text-primary" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="glass-card rounded-xl p-6 animate-pulse">
+                <div className="h-4 bg-muted rounded w-24 mb-3" />
+                <div className="h-6 bg-muted rounded mb-2" />
+                <div className="h-4 bg-muted rounded w-3/4 mb-4" />
+                <div className="h-3 bg-muted rounded w-32" />
               </div>
-
-              {/* Posts List */}
-              <AdminPostsList />
-            </>
-          )}
-
-          {activeTab === "categories" && <CategoryManager />}
-
-          {activeTab === "settings" && (
-            <div className="glass-card rounded-xl p-8">
-              <h2 className="text-xl font-semibold text-foreground mb-4">Settings</h2>
-              <p className="text-muted-foreground">Settings panel coming soon.</p>
-            </div>
-          )}
-        </main>
-      </div>
+            ))}
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="glass-card rounded-xl p-8 text-center">
+            <p className="text-muted-foreground mb-4">You haven’t written any posts yet.</p>
+            <Button onClick={handleNewPost} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              Write your first post
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {posts.map((post) => (
+              <div key={post.id} className="glass-card rounded-xl p-6 flex flex-col">
+                <span className="text-xs font-semibold uppercase text-primary bg-primary/10 px-2 py-1 rounded-full w-fit">
+                  {post.category}
+                </span>
+                <h3 className="text-xl font-bold text-foreground mt-3">{post.title}</h3>
+                <p className="text-sm text-muted-foreground mt-2 flex-grow">{post.excerpt}</p>
+                <div className="text-xs text-muted-foreground mt-3">
+                  <span>{post.date}</span> • <span>{post.readTime}</span>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <Button variant="outline" onClick={() => handleView(post.slug)}>
+                    View
+                  </Button>
+                  <Button
+                    onClick={() => handleEdit(post.id)}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
+                    Edit
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   )
 }

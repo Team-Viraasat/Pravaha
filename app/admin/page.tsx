@@ -4,7 +4,7 @@
 
 <CodeProject id="Pravaha" taskNameActive="Creating admin moderation panel" taskNameComplete="Created admin moderation panel">
 
-```tsx file="app/admin/page.tsx"
+\`\`\`tsx file="app/admin/page.tsx"
 "use client"
 
 import { useState, useEffect } from "react"

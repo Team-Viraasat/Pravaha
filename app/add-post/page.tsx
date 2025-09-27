@@ -22,7 +22,7 @@ export default function AddPostPage() {
     const res = await fetch("/api/posts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, content, author: user.username }),
+      body: JSON.stringify({ title, content, author: user.username, authorId: user.id }),
     })
     if (res.ok) {
       router.push("/")

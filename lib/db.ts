@@ -17,6 +17,7 @@ interface Post {
   content: string
   upvotes: number
   downvotes: number
+  authorId?: number // associate post with creator
 }
 
 interface Vote {
@@ -153,7 +154,7 @@ export const db = {
   userExists: (username: string) => users.some((u) => u.username === username),
 
   getPosts: () => posts,
-  addPost: (title: string, content: string, author: string, excerpt?: string, category?: string) => {
+  addPost: (title: string, content: string, author: string, excerpt?: string, category?: string, authorId?: number) => {
     const slug = title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
@@ -174,12 +175,13 @@ export const db = {
       content,
       upvotes: 0,
       downvotes: 0,
+      authorId, // persist authorId
     }
     posts.push(newPost)
     return newPost
   },
   getPostBySlug: (slug: string) => posts.find((post) => post.slug === slug),
-
+  getPostById: (id: string) => posts.find((post) => post.id === id), // fetch by id
   votePost: (userId: number, postId: string, voteType: "upvote" | "downvote") => {
     // Remove existing vote by this user for this post
     const existingVoteIndex = votes.findIndex((v) => v.userId === userId && v.postId === postId)

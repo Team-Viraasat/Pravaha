@@ -319,7 +319,7 @@ export default function HomePage() {
   }
 
   const handleWritePost = () => {
-    router.push("/add-post")
+    router.push("/admin/editor")
   }
 
   if (authLoading) {
@@ -359,7 +359,7 @@ export default function HomePage() {
           </p>
           <button
             onClick={handleWritePost}
-            className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold text-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl"
+            className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-bold text-lg hover:bg-primary/90 transition-colors shadow-md"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
