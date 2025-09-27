@@ -25,11 +25,11 @@ Admins can manage blog content.
 - npm  
 
 ### Run Locally
-1. Clone the repository:
-   ```
-   git clone https://github.com/Team-Viraasat/Pravaha.git
-   cd Pravaha
-   ```
+Clone the repository:
+```
+git clone https://github.com/Team-Viraasat/Pravaha.git
+cd Pravaha
+```
 Install dependencies:
 
 ```
@@ -44,9 +44,9 @@ npm run dev
 
 
 ```
-npm run dev	Start development server
-npm run build	Build for production
-npm run start	Run the production build
+npm run dev	    #Start development server
+npm run build	#Build for production
+npm run start	#Run the production build
 ```
 Open in your browser:
 
