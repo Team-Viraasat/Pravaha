@@ -1,119 +1,192 @@
+/* Unified and deduplicated global stylesheet.
+  This file combines styles from styles/globals.css, lib/styles/globals.css, 
+  lib/app/globals.css, and app/globals.css into a single source of truth.
+*/
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
+/* ========================================================================
+   1. ROOT VARIABLES (LIGHT & DARK THEME)
+   ======================================================================== */
+
 :root {
-  --background: oklch(0.98 0.01 120);
-  --foreground: oklch(0.15 0.02 240);
+  /* Refined and harmonious color scheme for light mode */
+  --background: oklch(0.99 0.005 240);
+  --foreground: oklch(0.11 0.02 240);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.11 0.02 240);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.11 0.02 240);
+  --primary: oklch(0.6 0.2 280);
+  --primary-foreground: oklch(0.99 0.005 240);
+  --secondary: oklch(0.97 0.01 240);
+  --secondary-foreground: oklch(0.2 0.02 240);
+  --muted: oklch(0.97 0.01 240);
+  --muted-foreground: oklch(0.4 0.02 240);
+  --accent: oklch(0.95 0.03 260);
+  --accent-foreground: oklch(0.11 0.02 240);
+  --destructive: oklch(0.55 0.2 15);
+  --destructive-foreground: oklch(0.99 0.005 240);
+  --border: oklch(0.11 0.02 240 / 0.1);
+  --input: oklch(0.11 0.02 240 / 0.05);
+  --ring: oklch(0.6 0.2 280 / 0.7);
+  --radius: 0.75rem;
 
-  --card: oklch(0.96 0.01 120 / 0.9);
-  --card-foreground: oklch(0.15 0.02 240);
-
-  --popover: oklch(0.98 0.01 120);
-  --popover-foreground: oklch(0.15 0.02 240);
-
-  --primary: oklch(0.65 0.2 280);
-  --primary-foreground: oklch(0.98 0.01 120);
-
-  --secondary: oklch(0.92 0.02 200);
-  --secondary-foreground: oklch(0.25 0.02 240);
-
-  --muted: oklch(0.94 0.01 120);
-  --muted-foreground: oklch(0.45 0.02 240);
-
-  --accent: oklch(0.88 0.05 160);
-  --accent-foreground: oklch(0.25 0.02 240);
-
-  --destructive: oklch(0.6 0.2 15);
-  --destructive-foreground: oklch(0.98 0.01 120);
-
-  --border: oklch(0.88 0.02 200 / 0.4);
-  --input: oklch(0.96 0.01 120);
-  --ring: oklch(0.65 0.2 280 / 0.6);
-
-  --chart-1: oklch(0.65 0.2 280);
+  /* Chart colors */
+  --chart-1: oklch(0.6 0.2 280);
   --chart-2: oklch(0.6 0.22 200);
   --chart-3: oklch(0.55 0.25 120);
   --chart-4: oklch(0.7 0.18 60);
   --chart-5: oklch(0.62 0.2 340);
 
-  --radius: 0.75rem;
+  /* Sidebar colors */
+  --sidebar: oklch(0.98 0.005 240);
+  --sidebar-foreground: oklch(0.15 0.02 240);
+  --sidebar-primary: oklch(0.6 0.2 280);
+  --sidebar-primary-foreground: oklch(0.98 0.01 120);
+  --sidebar-accent: oklch(0.96 0.01 240);
+  --sidebar-accent-foreground: oklch(0.25 0.02 240);
+  --sidebar-border: oklch(0.11 0.02 240 / 0.1);
+  --sidebar-ring: oklch(0.6 0.2 280 / 0.7);
 
-  /* Glass look defaults */
-  --glass-bg-final: rgba(255, 255, 255, 0.08);
-  --glass-border-final: rgba(255, 255, 255, 0.15);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  --glass-header-bg: rgba(255, 255, 255, 0.65);
+  /* Enhanced glass effect variables for light mode */
+  --glass-bg: oklch(1 0 0 / 0.5);
+  --glass-border: oklch(0.11 0.02 240 / 0.15);
+  --glass-shadow: 0 8px 32px oklch(0.5 0.1 240 / 0.1);
+  --glass-header-bg: oklch(0.99 0.005 240 / 0.7);
 }
 
 .dark {
-  --background: oklch(0.08 0.02 240);
-  --foreground: oklch(0.95 0.01 120);
-
-  --card: oklch(0.12 0.02 240 / 0.9);
-  --card-foreground: oklch(0.95 0.01 120);
-
+  /* Refined and cohesive dark mode with a slate theme */
+  --background: oklch(0.11 0.02 240);
+  --foreground: oklch(0.95 0.01 220);
+  --card: oklch(0.15 0.02 240);
+  --card-foreground: oklch(0.95 0.01 220);
   --popover: oklch(0.12 0.02 240);
-  --popover-foreground: oklch(0.95 0.01 120);
+  --popover-foreground: oklch(0.95 0.01 220);
+  --primary: oklch(0.7 0.25 280);
+  --primary-foreground: oklch(0.11 0.02 240);
+  --secondary: oklch(0.2 0.02 240);
+  --secondary-foreground: oklch(0.95 0.01 220);
+  --muted: oklch(0.2 0.02 240);
+  --muted-foreground: oklch(0.6 0.01 220);
+  --accent: oklch(0.25 0.05 260);
+  --accent-foreground: oklch(0.95 0.01 220);
+  --destructive: oklch(0.6 0.25 15);
+  --destructive-foreground: oklch(0.95 0.01 220);
+  --border: oklch(0.95 0.01 220 / 0.1);
+  --input: oklch(0.95 0.01 220 / 0.05);
+  --ring: oklch(0.7 0.25 280 / 0.7);
 
-  --primary: oklch(0.75 0.25 280);
-  --primary-foreground: oklch(0.08 0.02 240);
+  /* Chart colors */
+  --chart-1: oklch(0.7 0.25 280);
+  --chart-2: oklch(0.7 0.27 200);
+  --chart-3: oklch(0.65 0.3 120);
+  --chart-4: oklch(0.8 0.22 60);
+  --chart-5: oklch(0.72 0.25 340);
 
-  --secondary: oklch(0.18 0.02 240);
-  --secondary-foreground: oklch(0.85 0.01 120);
+  /* Sidebar colors */
+  --sidebar: oklch(0.12 0.02 240);
+  --sidebar-foreground: oklch(0.9 0.01 120);
+  --sidebar-primary: oklch(0.7 0.25 280);
+  --sidebar-primary-foreground: oklch(0.08 0.02 240);
+  --sidebar-accent: oklch(0.2 0.02 240);
+  --sidebar-accent-foreground: oklch(0.85 0.01 120);
+  --sidebar-border: oklch(0.95 0.01 220 / 0.1);
+  --sidebar-ring: oklch(0.7 0.25 280 / 0.7);
 
-  --muted: oklch(0.15 0.02 240);
-  --muted-foreground: oklch(0.65 0.01 120);
-
-  --accent: oklch(0.22 0.05 160);
-  --accent-foreground: oklch(0.9 0.01 120);
-
-  --destructive: oklch(0.65 0.25 15);
-  --destructive-foreground: oklch(0.95 0.01 120);
-
-  --border: oklch(0.2 0.02 240 / 0.4);
-  --input: oklch(0.15 0.02 240);
-  --ring: oklch(0.75 0.25 280 / 0.6);
-
-  --glass-bg-final: rgba(0, 0, 0, 0.4);
-  --glass-border-final: rgba(255, 255, 255, 0.1);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --glass-header-bg: rgba(0, 0, 0, 0.6);
+  /* Enhanced glass effect variables for dark mode */
+  --glass-bg: oklch(0.15 0.02 240 / 0.5);
+  --glass-border: oklch(0.95 0.01 220 / 0.15);
+  --glass-shadow: 0 8px 32px oklch(0 0 0 / 0.3);
+  --glass-header-bg: oklch(0.11 0.02 240 / 0.7);
 }
+
+/* ========================================================================
+   2. TAILWIND THEME CONFIG
+   ======================================================================== */
 
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
+
+/* ========================================================================
+   3. BASE & COMPONENT STYLES
+   ======================================================================== */
 
 @layer base {
   * {
     @apply border-border;
-    outline: 2px solid transparent;
+    outline-color: var(--ring);
     outline-offset: 2px;
   }
-
+  
   body {
-    @apply bg-background text-foreground font-sans transition-colors duration-300;
+    @apply text-foreground font-sans transition-colors duration-300;
+    /* Adding a subtle gradient for depth and a more modern feel */
+    background-color: var(--background);
+    background-image: radial-gradient(circle at top, oklch(from var(--background) l calc(l + 0.02) c h) 0%, var(--background) 100%);
   }
-
+  
   /* -------------------------
-       BLOG CONTENT
+     LAYOUT FIX - NEW
+  --------------------------*/
+  /* This ensures that main layout containers do not have their own solid 
+     background, which would hide the body's gradient. This is the key
+     to fixing the "boxed-in" look. */
+  .main-content-area, .hero-section {
+      background: transparent !important;
+  }
+  
+  /* -------------------------
+     BLOG CONTENT
   --------------------------*/
   .blog-content {
     @apply leading-relaxed text-foreground;
   }
 
   .blog-content code {
-    background: rgba(0, 0, 0, 0.05);
+    background: oklch(from var(--primary) l c h / 0.1);
     color: var(--primary);
     padding: 0.15em 0.4em;
     border-radius: 0.3em;
@@ -122,97 +195,126 @@
   }
 
   .dark .blog-content code {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--primary-foreground);
+    background: oklch(from var(--primary) l c h / 0.15);
   }
 
   .blog-content pre {
-    background: rgba(0, 0, 0, 0.06);
+    background: oklch(from var(--foreground) l c h / 0.03);
+    border: 1px solid var(--border);
     padding: 1rem;
     border-radius: 0.5rem;
     overflow-x: auto;
     font-family: var(--font-mono);
   }
 
-  .dark .blog-content pre {
-    background: rgba(255, 255, 255, 0.08);
+  /* -------------------------
+     GRADIENT TEXT
+  --------------------------*/
+  .gradient-text {
+    @apply bg-clip-text text-transparent font-extrabold;
+    background-image: linear-gradient(90deg, #4f46e5, #9333ea, #ec4899);
+  }
+
+  .dark .gradient-text {
+    background-image: linear-gradient(90deg, #a5b4fc, #c084fc, #f9a8d4);
   }
 
   /* -------------------------
-       GLASS UTILITIES
+     GLASS UI UTILITIES
   --------------------------*/
   .glass-card {
-    background: var(--glass-bg-final);
-    border: 1px solid var(--glass-border-final);
-    backdrop-filter: blur(16px) saturate(160%) brightness(1.05);
-    -webkit-backdrop-filter: blur(16px) saturate(160%) brightness(1.05);
-    box-shadow: var(--glass-shadow);
-    transition: all 0.3s ease;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px) saturate(150%) brightness(1.1);
+    -webkit-backdrop-filter: blur(20px) saturate(150%) brightness(1.1);
+    isolation: isolate;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05), inset 0 1px 0 oklch(from var(--foreground) l c h / 0.02);
   }
-
+  
   .glass-card:hover {
-    backdrop-filter: blur(22px) saturate(200%) brightness(1.1);
-    -webkit-backdrop-filter: blur(22px) saturate(200%) brightness(1.1);
-    transform: translateY(-2px);
+    backdrop-filter: blur(40px) saturate(200%) brightness(1.2);
+    -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.2);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px var(--glass-shadow);
   }
 
   .glass-nav {
     background: var(--glass-header-bg);
-    border-bottom: 1px solid var(--glass-border-final);
-    backdrop-filter: blur(18px) saturate(160%) brightness(1.05);
-    -webkit-backdrop-filter: blur(18px) saturate(160%) brightness(1.05);
-    transition: all 0.3s ease;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* -------------------------
-       HOVER PREVIEW (CENTER MODAL STYLE)
+     HOVER PREVIEW
   --------------------------*/
-/* -------------------------
-   HOVER PREVIEW (CENTER MODAL)
---------------------------*/
-.hover-preview {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.95);
-  z-index: 9999;
+  .hover-preview {
+    position: fixed;
+    z-index: 9999;
+    width: min(90vw, 350px);
+    min-height: 200px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--glass-bg);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 32px var(--glass-shadow);
+    border-radius: var(--radius-lg);
+  }
 
-  width: min(90vw, 700px);
-  min-height: 400px;
+  .hover-preview.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  
+  /* -------------------------
+     PAGE TRANSITIONS
+  --------------------------*/
+  .page-transition {
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.3s ease;
-
-  background: var(--glass-header-bg);
-  border: 1px solid var(--glass-border-final);
-  backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
-  -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }
 
-.hover-preview.show {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-  pointer-events: auto;
-}
+/* ========================================================================
+   4. CUSTOM ANIMATIONS & UTILITIES
+   ======================================================================== */
 
-}
-
-/* -------------------------
-   BLOGSPACE LOADING TEXT
---------------------------*/
 .blogspace-loader {
   font-size: 2.2rem;
   font-weight: 700;
   letter-spacing: 2px;
-  color: var(--foreground); /* instead of var(--primary) */
   white-space: nowrap;
-  border-right: 2px solid var(--foreground);
   width: 0;
   overflow: hidden;
+
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(90deg, #4f46e5, #9333ea, #ec4899);
+
+  border-right: 2px solid #9333ea;
+
   animation: typing 2.5s steps(20, end) forwards, blink 0.75s step-end infinite;
+}
+
+.dark .blogspace-loader {
+  background-image: linear-gradient(90deg, #a5b4fc, #c084fc, #f9a8d4);
+  border-right: 2px solid #c084fc;
 }
 
 @keyframes typing {
@@ -223,3 +325,4 @@
 @keyframes blink {
   50% { border-color: transparent; }
 }
+
