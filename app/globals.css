@@ -169,13 +169,13 @@
   }
   
   /* -------------------------
-     LAYOUT FIX - NEW
+     LAYOUT FIX - V2
   --------------------------*/
-  /* This ensures that main layout containers do not have their own solid 
-     background, which would hide the body's gradient. This is the key
-     to fixing the "boxed-in" look. */
-  .main-content-area, .hero-section {
-      background: transparent !important;
+  /* This is the key fix for the "boxed-in" look. It targets the primary
+     content wrapper of the page (often a <main> tag) and makes its 
+     background transparent, allowing the body's gradient to show through. */
+  main {
+      background-color: transparent !important;
   }
   
   /* -------------------------
