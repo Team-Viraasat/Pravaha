@@ -8,7 +8,7 @@ import { Suspense } from "react"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "BlogSpace - Modern Blog Platform",
+  title: "Pravaha - Modern Blog Platform",
   description: "A clean, modern blog platform for sharing ideas and stories",
   generator: "v0.app",
 }

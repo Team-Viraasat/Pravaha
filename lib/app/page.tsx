@@ -106,7 +106,7 @@ export default function HomePage() {
           <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6 text-balance">
             Welcome to{" "}
             <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent animate-pulse">
-              BlogSpace
+              Pravaha
             </span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed text-pretty animate-in slide-in-from-bottom-4 duration-700 delay-200">

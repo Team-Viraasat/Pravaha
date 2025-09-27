@@ -23,7 +23,7 @@ export function BlogHeader({ isAdmin = false, onAdminClick }: BlogHeaderProps) {
             <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
               <span className="text-primary-foreground font-bold text-sm">B</span>
             </div>
-            <span className="text-xl font-bold text-foreground">BlogSpace</span>
+            <span className="text-xl font-bold text-foreground">Pravaha</span>
           </div>
 
           <div className="hidden md:flex flex-1 max-w-md mx-8">

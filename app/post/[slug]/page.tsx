@@ -11,7 +11,7 @@ const BlogHeader = ({ isAdmin, onAdminClick, onToggleTheme, currentTheme, onLogo
   return (
     <header className="glass-nav sticky top-0 z-50">
       <div className="container mx-auto flex items-center justify-between p-4 text-foreground">
-        <h1 className="text-2xl font-bold">BlogSpace</h1>
+        <h1 className="text-2xl font-bold">Pravaha</h1>
         <div className="flex items-center gap-4">
           <input
             type="search"

@@ -319,7 +319,7 @@
 
 @keyframes typing {
   from { width: 0; }
-  to { width: 17ch; } /* "Loading BlogSpace..." */
+  to { width: 17ch; } /* "Loading Pravaha..." */
 }
 
 @keyframes blink {

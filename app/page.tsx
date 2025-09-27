@@ -266,7 +266,7 @@ export default function HomePage() {
     root.classList.add(theme)
   }, [theme])
 
-  // Typing effect for BlogSpace
+  // Typing effect for Pravaha
   useEffect(() => {
     const fullText = "Pravaha"
     let i = 0
@@ -337,7 +337,7 @@ export default function HomePage() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="blogspace-loader">Loading BlogSpace...</div>
+        <div className="blogspace-loader">Loading Pravaha...</div>
       </div>
     )
   }
