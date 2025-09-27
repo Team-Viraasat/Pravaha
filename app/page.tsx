@@ -1,12 +1,11 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
-// useRouter and component paths are mocked as the build environment cannot resolve them.
-// Replace these with your actual components and routing logic.
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 
 // --- Mock Components (to resolve build errors) ---
 
-const BlogHeader = ({ isAdmin, onAdminClick, onToggleTheme, currentTheme }) => {
+const BlogHeader = ({ isAdmin, onUserClick, onToggleTheme, currentTheme, onLogout, onWritePost }) => {
   return (
     <header className="glass-nav sticky top-0 z-50">
       <div className="container mx-auto flex items-center justify-between p-4 text-foreground">
@@ -17,24 +16,77 @@ const BlogHeader = ({ isAdmin, onAdminClick, onToggleTheme, currentTheme }) => {
             placeholder="Search posts..."
             className="hidden md:block glass-card rounded-full px-4 py-2 bg-transparent border border-border focus:ring-2 focus:ring-primary focus:outline-none transition-all"
           />
-          {isAdmin && (
-            <button
-              onClick={onAdminClick}
-              className="font-semibold hover:text-primary transition-colors"
+          <button
+            onClick={onWritePost}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              Admin
-            </button>
-          )}
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+              <polyline points="14,2 14,8 20,8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10,9 9,9 8,9" />
+            </svg>
+            Write Post
+          </button>
+          <button onClick={onUserClick} className="font-semibold hover:text-primary transition-colors">
+            Dashboard
+          </button>
           <button
             onClick={onToggleTheme}
             className="p-2 rounded-full hover:bg-muted/50 transition-colors"
             aria-label="Toggle theme"
           >
-            {currentTheme === 'light' ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+            {currentTheme === "light" ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+              </svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m4.93 17.66 1.41-1.41"/><path d="m17.66 4.93 1.41-1.41"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2" />
+                <path d="M12 20v2" />
+                <path d="m4.93 4.93 1.41 1.41" />
+                <path d="m17.66 17.66 1.41 1.41" />
+                <path d="M2 12h2" />
+                <path d="M20 12h2" />
+                <path d="m4.93 17.66 1.41-1.41" />
+                <path d="m17.66 4.93 1.41-1.41" />
+              </svg>
             )}
+          </button>
+          <button onClick={onLogout} className="font-semibold hover:text-destructive transition-colors">
+            Logout
           </button>
         </div>
       </div>
@@ -42,80 +94,158 @@ const BlogHeader = ({ isAdmin, onAdminClick, onToggleTheme, currentTheme }) => {
   )
 }
 
-const PostCard = ({ title, excerpt, category, author, date, readTime, slug, onViewPost }) => {
+const PostCard = ({ post, onViewPost, user }) => {
+  const [upvotes, setUpvotes] = useState(post.upvotes || 0)
+  const [downvotes, setDownvotes] = useState(post.downvotes || 0)
+  const [userVote, setUserVote] = useState(null)
+  const [isVoting, setIsVoting] = useState(false)
+
+  useEffect(() => {
+    // Fetch user's current vote for this post
+    const fetchUserVote = async () => {
+      try {
+        const response = await fetch(`/api/posts/${post.slug}/vote?userId=${user.id}`)
+        const data = await response.json()
+        setUserVote(data.userVote)
+        setUpvotes(data.upvotes)
+        setDownvotes(data.downvotes)
+      } catch (error) {
+        console.error("Failed to fetch vote data:", error)
+      }
+    }
+
+    if (user && post.slug) {
+      fetchUserVote()
+    }
+  }, [post.slug, user])
+
+  const handleVote = async (voteType) => {
+    if (isVoting) return
+
+    setIsVoting(true)
+    try {
+      const response = await fetch(`/api/posts/${post.slug}/vote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, voteType }),
+      })
+
+      const data = await response.json()
+      if (response.ok) {
+        setUpvotes(data.post.upvotes)
+        setDownvotes(data.post.downvotes)
+        setUserVote(data.userVote)
+      }
+    } catch (error) {
+      console.error("Failed to vote:", error)
+    } finally {
+      setIsVoting(false)
+    }
+  }
+
   return (
     <div className="p-6 h-full flex flex-col">
       <div>
-        <span className="text-xs font-semibold uppercase text-primary bg-primary/10 px-2 py-1 rounded-full">{category}</span>
+        <span className="text-xs font-semibold uppercase text-primary bg-primary/10 px-2 py-1 rounded-full">
+          {post.category}
+        </span>
       </div>
-      <h3 className="text-xl font-bold my-3 text-foreground">{title}</h3>
-      <p className="text-muted-foreground text-sm flex-grow">{excerpt}</p>
-      <div className="text-xs text-muted-foreground mt-4">
-        <span>{author}</span> &bull; <span>{date}</span> &bull; <span>{readTime}</span>
+      <h3 className="text-xl font-bold my-3 text-foreground">{post.title}</h3>
+      <p className="text-muted-foreground text-sm flex-grow">{post.excerpt}</p>
+
+      <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => handleVote("upvote")}
+            disabled={isVoting}
+            className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all ${
+              userVote === "upvote"
+                ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+                : "hover:bg-muted text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill={userVote === "upvote" ? "currentColor" : "none"}
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m18 15-6-6-6 6" />
+            </svg>
+            <span className="text-sm font-medium">{upvotes}</span>
+          </button>
+
+          <button
+            onClick={() => handleVote("downvote")}
+            disabled={isVoting}
+            className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all ${
+              userVote === "downvote"
+                ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400"
+                : "hover:bg-muted text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill={userVote === "downvote" ? "currentColor" : "none"}
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+            <span className="text-sm font-medium">{downvotes}</span>
+          </button>
+        </div>
+
+        <button onClick={() => onViewPost(post.slug)} className="text-sm font-semibold text-primary hover:underline">
+          View Post &rarr;
+        </button>
       </div>
-      <button onClick={() => onViewPost(slug)} className="text-sm font-semibold text-primary mt-4 self-start hover:underline">
-        View Post &rarr;
-      </button>
+
+      <div className="text-xs text-muted-foreground mt-2">
+        <span>{post.author}</span> &bull; <span>{post.date}</span> &bull; <span>{post.readTime}</span>
+      </div>
     </div>
   )
 }
 
-// --- Mock useRouter hook ---
-const useRouter = () => {
-  return {
-    push: (path) => {
-      console.log(`Navigating to: ${path}`)
-      // In a real Next.js app, this would change the URL.
-      // Since this environment doesn't support it, we'll simulate a page load delay.
-      alert(`Navigating to ${path}. This is a mock navigation.`);
-    },
-  }
-}
-
-
 // --- Main Page Component ---
-
-const mockPosts = [
-  {
-    id: "1",
-    title: "Building Modern Web Applications with Next.js",
-    excerpt:
-      "Explore the latest features and best practices for creating scalable web applications using Next.js 14 and React Server Components.",
-    category: "Development",
-    author: "Sarah Chen",
-    date: "Dec 15, 2024",
-    readTime: "8 min read",
-    slug: "building-modern-web-apps-nextjs",
-  },
-  {
-    id: "2",
-    title: "The Future of AI in Web Development",
-    excerpt:
-      "How artificial intelligence is transforming the way we build, test, and deploy web applications in 2024 and beyond.",
-    category: "AI & Tech",
-    author: "Marcus Johnson",
-    date: "Dec 12, 2024",
-    readTime: "6 min read",
-    slug: "future-ai-web-development",
-  },
-  {
-    id: "3",
-    title: "Mastering CSS Grid and Flexbox",
-    excerpt: "A comprehensive guide to modern CSS layout techniques that every frontend developer should know.",
-    category: "CSS",
-    author: "Elena Rodriguez",
-    date: "Dec 10, 2024",
-    readTime: "12 min read",
-    slug: "mastering-css-grid-flexbox",
-  },
-]
 
 export default function HomePage() {
   const router = useRouter()
-  const [isAdmin] = useState(true)
+  const [user, setUser] = useState(null)
+  const [authLoading, setAuthLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [typedText, setTypedText] = useState("")
   const [theme, setTheme] = useState("light")
+  const [posts, setPosts] = useState([])
+  const [postsLoading, setPostsLoading] = useState(true)
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const storedUser = localStorage.getItem("user")
+      if (storedUser) {
+        const userData = JSON.parse(storedUser)
+        setUser(userData)
+        setIsAdmin(userData.username === "admin")
+        setAuthLoading(false)
+      } else {
+        router.push("/login")
+      }
+    }
+
+    checkAuth()
+  }, [router])
 
   // Effect for theme switching
   useEffect(() => {
@@ -136,9 +266,28 @@ export default function HomePage() {
     return () => clearInterval(interval)
   }, [])
 
+  // Fetch posts from database
+  useEffect(() => {
+    if (!user) return
+
+    const fetchPosts = async () => {
+      try {
+        const response = await fetch("/api/posts")
+        const data = await response.json()
+        setPosts(data.posts)
+      } catch (error) {
+        console.error("Failed to fetch posts:", error)
+      } finally {
+        setPostsLoading(false)
+      }
+    }
+
+    fetchPosts()
+  }, [user])
+
   const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
+    setTheme(theme === "light" ? "dark" : "light")
+  }
 
   const handleViewPost = (slug) => {
     setIsLoading(true)
@@ -148,8 +297,18 @@ export default function HomePage() {
     }, 200)
   }
 
+  const handleUserClick = () => {
+    router.push("/user")
+  }
+
   const handleAdminClick = () => {
     router.push("/admin")
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("user")
+    setUser(null)
+    router.push("/login")
   }
 
   const handleLoadMore = () => {
@@ -159,13 +318,31 @@ export default function HomePage() {
     }, 1000)
   }
 
+  const handleWritePost = () => {
+    router.push("/add-post")
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="blogspace-loader">Loading BlogSpace...</div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
+  }
+
   return (
     <div className="min-h-screen page-transition">
-      <BlogHeader 
-        isAdmin={isAdmin} 
-        onAdminClick={handleAdminClick} 
+      <BlogHeader
+        isAdmin={isAdmin}
+        onUserClick={handleUserClick}
         onToggleTheme={toggleTheme}
         currentTheme={theme}
+        onLogout={handleLogout}
+        onWritePost={handleWritePost}
       />
 
       <main className="container mx-auto px-4 py-8">
@@ -177,9 +354,32 @@ export default function HomePage() {
               {typedText}
             </span>
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
             Discover insightful articles, tutorials, and stories from developers and creators around the world.
           </p>
+          <button
+            onClick={handleWritePost}
+            className="inline-flex items-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold text-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+              <polyline points="14,2 14,8 20,8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10,9 9,9 8,9" />
+            </svg>
+            Start Writing Your Story
+          </button>
         </section>
 
         {/* Posts */}
@@ -187,31 +387,38 @@ export default function HomePage() {
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold text-foreground">Latest Posts</h2>
             <div className="glass-card px-3 py-1 rounded-full">
-              <span className="text-sm text-muted-foreground">{mockPosts.length} articles</span>
+              <span className="text-sm text-muted-foreground">
+                {postsLoading ? "Loading..." : `${posts.length} articles`}
+              </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {mockPosts.map((post, index) => (
-              <div
-                key={post.id}
-                className="glass-card animate-in slide-in-from-bottom-4 duration-500 rounded-2xl 
-                           overflow-hidden"
-                style={{ animationDelay: `${index * 100 + 600}ms` }}
-              >
-                <PostCard
-                  title={post.title}
-                  excerpt={post.excerpt}
-                  category={post.category}
-                  author={post.author}
-                  date={post.date}
-                  readTime={post.readTime}
-                  slug={post.slug}
-                  onViewPost={handleViewPost}
-                />
-              </div>
-            ))}
-          </div>
+          {postsLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="glass-card rounded-2xl p-6 animate-pulse">
+                  <div className="h-4 bg-muted rounded w-20 mb-4"></div>
+                  <div className="h-6 bg-muted rounded mb-3"></div>
+                  <div className="h-4 bg-muted rounded mb-2"></div>
+                  <div className="h-4 bg-muted rounded w-3/4 mb-4"></div>
+                  <div className="h-3 bg-muted rounded w-32"></div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {posts.map((post, index) => (
+                <div
+                  key={post.id}
+                  className="glass-card animate-in slide-in-from-bottom-4 duration-500 rounded-2xl 
+                             overflow-hidden"
+                  style={{ animationDelay: `${index * 100 + 600}ms` }}
+                >
+                  <PostCard post={post} onViewPost={handleViewPost} user={user} />
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Load more */}
@@ -240,4 +447,3 @@ export default function HomePage() {
     </div>
   )
 }
-

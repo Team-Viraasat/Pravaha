@@ -1,66 +1,142 @@
 "use client"
 
-import { BlogHeader } from "@/components/blog-header"
-import { CommentSection } from "@/components/comment-section"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Clock, User, Share2, Bookmark, Heart } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
-// Mock post data
-const mockPost = {
-  title: "Building Modern Web Applications with Next.js",
-  content: `
-# Introduction
+const BlogHeader = ({ isAdmin, onAdminClick, onToggleTheme, currentTheme, onLogout }) => {
+  return (
+    <header className="glass-nav sticky top-0 z-50">
+      <div className="container mx-auto flex items-center justify-between p-4 text-foreground">
+        <h1 className="text-2xl font-bold">BlogSpace</h1>
+        <div className="flex items-center gap-4">
+          <input
+            type="search"
+            placeholder="Search posts..."
+            className="hidden md:block glass-card rounded-full px-4 py-2 bg-transparent border border-border focus:ring-2 focus:ring-primary focus:outline-none transition-all"
+          />
+          {isAdmin && (
+            <button onClick={onAdminClick} className="font-semibold hover:text-primary transition-colors">
+              Admin
+            </button>
+          )}
+          <button
+            onClick={onToggleTheme}
+            className="p-2 rounded-full hover:bg-muted/50 transition-colors"
+            aria-label="Toggle theme"
+          >
+            {currentTheme === "light" ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2" />
+                <path d="M12 20v2" />
+                <path d="m4.93 4.93 1.41 1.41" />
+                <path d="m17.66 17.66 1.41 1.41" />
+                <path d="M2 12h2" />
+                <path d="M20 12h2" />
+                <path d="m4.93 17.66 1.41-1.41" />
+                <path d="m17.66 4.93 1.41-1.41" />
+              </svg>
+            )}
+          </button>
+          <button onClick={onLogout} className="font-semibold hover:text-destructive transition-colors">
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+  )
+}
 
-Next.js has revolutionized the way we build React applications by providing a comprehensive framework that handles routing, server-side rendering, and optimization out of the box. In this comprehensive guide, we'll explore the latest features and best practices for creating scalable web applications.
-
-## Getting Started with Next.js 14
-
-The latest version of Next.js introduces several groundbreaking features that make development faster and more efficient:
-
-### App Router
-The new App Router provides a more intuitive way to structure your application with file-based routing that supports layouts, loading states, and error boundaries.
-
-### Server Components
-React Server Components allow you to render components on the server, reducing the JavaScript bundle size and improving performance.
-
-## Best Practices
-
-Here are some essential best practices to follow when building with Next.js:
-
-1. **Use TypeScript** - Type safety helps catch errors early and improves developer experience
-2. **Optimize Images** - Use the built-in Image component for automatic optimization
-3. **Implement Proper SEO** - Leverage metadata API for better search engine optimization
-4. **Code Splitting** - Take advantage of automatic code splitting for better performance
-
-## Performance Optimization
-
-Performance is crucial for user experience. Here are key optimization strategies:
-
-- Use dynamic imports for code splitting
-- Implement proper caching strategies
-- Optimize your bundle size
-- Use the built-in analytics to monitor performance
-
-## Conclusion
-
-Next.js continues to evolve and provide developers with powerful tools to build modern web applications. By following these best practices and leveraging the framework's capabilities, you can create fast, scalable, and maintainable applications.
-  `,
-  category: "Development",
-  author: "Sarah Chen",
-  date: "Dec 15, 2024",
-  readTime: "8 min read",
-  tags: ["Next.js", "React", "Web Development", "JavaScript", "TypeScript"],
+const CommentSection = () => {
+  return (
+    <div className="glass-card rounded-xl p-6">
+      <h3 className="text-xl font-semibold mb-4">Comments</h3>
+      <p className="text-muted-foreground">Comments feature coming soon...</p>
+    </div>
+  )
 }
 
 export default function PostPage({ params }: { params: { slug: string } }) {
   const router = useRouter()
-  const [isAdmin] = useState(true)
+  const [user, setUser] = useState(null)
+  const [authLoading, setAuthLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [theme, setTheme] = useState("light")
+  const [post, setPost] = useState(null)
+  const [postLoading, setPostLoading] = useState(true)
+  const [postError, setPostError] = useState(null)
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(42)
+
+  useEffect(() => {
+    const checkAuth = () => {
+      const storedUser = localStorage.getItem("user")
+      if (storedUser) {
+        const userData = JSON.parse(storedUser)
+        setUser(userData)
+        setIsAdmin(userData.username === "admin")
+        setAuthLoading(false)
+      } else {
+        router.push("/login")
+      }
+    }
+
+    checkAuth()
+  }, [router])
+
+  useEffect(() => {
+    if (!user) return
+
+    const fetchPost = async () => {
+      try {
+        const response = await fetch(`/api/posts/${params.slug}`)
+        if (response.ok) {
+          const data = await response.json()
+          setPost(data.post)
+        } else {
+          setPostError("Post not found")
+        }
+      } catch (error) {
+        setPostError("Failed to load post")
+      } finally {
+        setPostLoading(false)
+      }
+    }
+
+    fetchPost()
+  }, [params.slug, user])
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light")
+  }
 
   const handleBack = () => {
     router.back()
@@ -70,10 +146,16 @@ export default function PostPage({ params }: { params: { slug: string } }) {
     router.push("/admin")
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem("user")
+    setUser(null)
+    router.push("/login")
+  }
+
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: mockPost.title,
+        title: post?.title,
         url: window.location.href,
       })
     } else {
@@ -86,9 +168,76 @@ export default function PostPage({ params }: { params: { slug: string } }) {
     setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1))
   }
 
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="blogspace-loader">Loading BlogSpace...</div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null
+  }
+
+  if (postLoading) {
+    return (
+      <div className="min-h-screen page-transition">
+        <BlogHeader
+          isAdmin={isAdmin}
+          onAdminClick={handleAdminClick}
+          onToggleTheme={toggleTheme}
+          currentTheme={theme}
+          onLogout={handleLogout}
+        />
+        <main className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="glass-card rounded-xl p-8 animate-pulse">
+            <div className="h-8 bg-muted rounded w-3/4 mb-4"></div>
+            <div className="h-4 bg-muted rounded w-1/2 mb-6"></div>
+            <div className="space-y-3">
+              <div className="h-4 bg-muted rounded"></div>
+              <div className="h-4 bg-muted rounded"></div>
+              <div className="h-4 bg-muted rounded w-5/6"></div>
+            </div>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  if (postError || !post) {
+    return (
+      <div className="min-h-screen page-transition">
+        <BlogHeader
+          isAdmin={isAdmin}
+          onAdminClick={handleAdminClick}
+          onToggleTheme={toggleTheme}
+          currentTheme={theme}
+          onLogout={handleLogout}
+        />
+        <main className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="text-center py-12">
+            <h1 className="text-2xl font-bold text-foreground mb-4">Post Not Found</h1>
+            <p className="text-muted-foreground mb-6">{postError}</p>
+            <Button onClick={handleBack}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to posts
+            </Button>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen page-transition">
-      <BlogHeader isAdmin={isAdmin} onAdminClick={handleAdminClick} />
+      <BlogHeader
+        isAdmin={isAdmin}
+        onAdminClick={handleAdminClick}
+        onToggleTheme={toggleTheme}
+        currentTheme={theme}
+        onLogout={handleLogout}
+      />
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <Button
@@ -107,25 +256,25 @@ export default function PostPage({ params }: { params: { slug: string } }) {
                 variant="secondary"
                 className="bg-gradient-to-r from-primary/20 to-primary/10 text-primary border border-primary/20 hover:from-primary/30 hover:to-primary/20 transition-all duration-300"
               >
-                {mockPost.category}
+                {post.category}
               </Badge>
             </div>
 
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-6 leading-tight text-balance animate-in slide-in-from-bottom-4 duration-700 delay-500">
-              {mockPost.title}
+              {post.title}
             </h1>
 
             <div className="flex items-center justify-between flex-wrap gap-4 animate-in fade-in duration-700 delay-700">
               <div className="flex items-center gap-6 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2 hover:text-foreground transition-colors">
                   <User className="h-4 w-4" />
-                  <span>{mockPost.author}</span>
+                  <span>{post.author}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
-                  <span>{mockPost.readTime}</span>
+                  <span>{post.readTime}</span>
                 </div>
-                <span>{mockPost.date}</span>
+                <span>{post.date}</span>
               </div>
 
               <div className="flex items-center gap-2">
@@ -164,7 +313,7 @@ export default function PostPage({ params }: { params: { slug: string } }) {
 
           <div className="prose prose-invert prose-lg max-w-none animate-in slide-in-from-bottom-4 duration-700 delay-900">
             <div className="text-foreground leading-relaxed space-y-6 blog-content">
-              {mockPost.content.split("\n").map((paragraph, index) => {
+              {post.content.split("\n").map((paragraph, index) => {
                 if (paragraph.startsWith("# ")) {
                   return (
                     <h1
@@ -192,6 +341,13 @@ export default function PostPage({ params }: { params: { slug: string } }) {
                 if (paragraph.trim() === "") {
                   return <br key={index} />
                 }
+                if (paragraph.startsWith("```")) {
+                  return (
+                    <pre key={index} className="bg-muted p-4 rounded-lg overflow-x-auto">
+                      <code>{paragraph.slice(3)}</code>
+                    </pre>
+                  )
+                }
                 return (
                   <p key={index} className="text-muted-foreground leading-relaxed">
                     {paragraph}
@@ -199,19 +355,6 @@ export default function PostPage({ params }: { params: { slug: string } }) {
                 )
               })}
             </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-border/50 animate-in slide-in-from-bottom-4 duration-700 delay-1100">
-            {mockPost.tags.map((tag, index) => (
-              <Badge
-                key={tag}
-                variant="outline"
-                className="text-xs hover:bg-primary/10 hover:border-primary/30 hover:text-primary transition-all duration-300 hover:scale-105 cursor-pointer"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                {tag}
-              </Badge>
-            ))}
           </div>
         </article>
 
