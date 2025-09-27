@@ -36,18 +36,16 @@ Install dependencies:
 npm install
 ```
 
-Start the development server:
-
 ```
-npm run dev
+npm run dev	    #For Testing Purpose
 ```
 
+To Build and Run the Website
+```
+npm run build	
+npm run start	
+```
 
-```
-npm run dev	    #Start development server
-npm run build	#Build for production
-npm run start	#Run the production build
-```
 Open in your browser:
 
 ```
